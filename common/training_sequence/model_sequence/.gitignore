@@ -1,0 +1,34 @@
+# Training artifacts (대용량)
+runs/
+versions/
+logs/
+
+# 로컬 전용 롤백 백업 (cobot2 best.pt 사본 등)
+rollback_*/
+
+# 사전학습 가중치 (재다운로드 가능)
+*.pt
+*.onnx
+*.engine
+
+# Roboflow 다운로드 캐시
+_roboflow_cache/
+_roboflow_cache_v2/
+
+# 자동 생성 (train.py 가 매 실행마다 생성)
+cobot.yaml
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# 비밀 (혹시라도)
+.env
+*.key

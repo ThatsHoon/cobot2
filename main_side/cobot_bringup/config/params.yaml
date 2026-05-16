@@ -1,0 +1,35 @@
+# -----------------------------------------------
+# 1. 로봇 제어 및 동작 파라미터 (executer)
+# -----------------------------------------------
+executer:
+  ros__parameters:
+    # 기본 이동 속도 및 가속도 (base_action.py)
+    vel_linear: 200.0
+    acc_linear: 50.0
+    vel_angular: 70.0
+    acc_angular: 70.0
+    
+    # 그리퍼 조작 관련
+    tilt_angle: -5.0
+    gripper_length: 0.0
+    min_depth: 20.0      # 바닥 충돌 방지 최소 높이 (mm)
+    depth_offset: 0.0  # 계산된 표면 깊이로부터 내려가는 거리 (mm)
+
+# -----------------------------------------------
+# 2. 상태 및 에러 복구 파라미터 (state_manager)
+# -----------------------------------------------
+state_manager:
+  ros__parameters:
+    max_retries: 2       # 에러 발생 시 최대 재시도 횟수
+
+# -----------------------------------------------
+# 3. 비전+파지 (grasp_perception_node)
+#    YOLO/VLM/포인트클라우드/그리퍼 튜닝은 grasp_node 의 CLI 인자로 관리한다
+#    (--quality-min, --approach-offset-mm, --grip-force-n, --gripper-ip 등).
+#    launch 의 arguments= 로 주입. ROS 파라미터 불필요.
+# -----------------------------------------------
+
+# -----------------------------------------------
+# 4. 음성(wake/STT/LLM/TTS): sub1_side/web/backend 의 wakeup_worker 가
+#    자체 환경변수/상수로 관리. (voice_processing 제거로 ROS 파라미터 불필요)
+# -----------------------------------------------

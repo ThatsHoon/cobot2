@@ -1,0 +1,10 @@
+# Goal: 수행할 동작
+string command
+---
+# Result: 최종 성공 여부
+bool success
+string message
+---
+# Feedback: 현재 수행 중인 단계 정보
+int32 current_step
+string current_action

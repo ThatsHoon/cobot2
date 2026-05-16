@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# ROS 2 / colcon (워크스페이스 빌드 산출물 — 보통 src/ 밖이나 방어적으로)
+build/
+install/
+log/
+
+# 환경/시크릿 (예시 파일만 커밋, 실제 .env 금지)
+.env
+*.env
+!*.env.example
+
+# DB 데이터 볼륨 (debugging 도커)
+db_data/
+
+# 디버그 산출물
+main_side/gripper_approaching_sequence/gui_for_test/history_images/
+**/_snapshots/
+
+# OS/에디터
+.DS_Store
+*.swp

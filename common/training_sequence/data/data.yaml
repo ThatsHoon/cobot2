@@ -1,0 +1,13 @@
+path: /home/rokey/backup/data
+train: images/train
+val: images/valid
+test: images/test
+nc: 7
+names:
+- shaker
+- toy_block
+- plate
+- apple
+- pear
+- orange
+- banana

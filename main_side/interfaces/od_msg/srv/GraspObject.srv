@@ -1,0 +1,10 @@
+# Request (요청)
+string target_name   # YOLO 클래스명 (예: "apple", "plate")
+string mode          # "grasp" = 인지+접근+파지 실행 | "locate" = base_pose만 반환(모션 없음)
+---
+# Response (응답)
+bool success            # 인지/파지 성공 여부
+string message          # 상태/에러 메시지
+float64[6] base_pose    # Base 좌표 [x,y,z mm, rx,ry,rz deg ZYZ] — Doosan posx 규약
+float64 width_mm        # 산출된 그리퍼 폭 (mm)
+float64 quality         # 파지 품질 점수 [0,1]

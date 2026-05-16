@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>rokey</name>
+  <version>0.0.0</version>
+  <description>ROKEY BOOT CAMP Package</description>
+  <maintainer email="dlacksdn352@gmail.com">sparkx</maintainer>
+  <license>Apache 2.0 License</license>
+
+  <!-- 패키지명 'rokey' (폴더 'utils' 와 불일치하나 ROS2 허용·기존 설치 호환 위해 유지) -->
+  <!-- 존재하지 않던 <depend>common2</depend> 제거 — rosdep install 실패 유발 -->
+  <depend>rclpy</depend>
+
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>action_msgs</exec_depend>
+  
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
