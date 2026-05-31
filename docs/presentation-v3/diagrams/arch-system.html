@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cobot2 System Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #1a1b26;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Consolas', 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  }
+  svg {
+    max-width: 100%;
+    max-height: 100vh;
+  }
+</style>
+</head>
+<body>
+<svg viewBox="0 0 1200 760" xmlns="http://www.w3.org/2000/svg"
+     width="1200" height="760" style="background:#1a1b26;">
+  <defs>
+    <!-- Arrowhead markers -->
+    <marker id="arrow-blue" markerWidth="10" markerHeight="7"
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7aa2f7"/>
+    </marker>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="7"
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#bb9af7"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="7"
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#9ece6a"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="7"
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f7768e"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="10" markerHeight="7"
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#e0af68"/>
+    </marker>
+    <marker id="arrow-gray" markerWidth="10" markerHeight="7"
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#565f89"/>
+    </marker>
+
+    <!-- Subtle glow filter for PC boxes -->
+    <filter id="glow-blue" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- TITLE                                                   -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <text x="600" y="36" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="20" font-weight="700" fill="#c0caf5" letter-spacing="1">
+    cobot2  System Architecture
+  </text>
+  <text x="600" y="56" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="12" fill="#565f89">
+    2 PCs · 7 ROS 2 Nodes · FastAPI · DSR Controller · MySQL
+  </text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- LEFT PC BOX — sub1_PC                                  -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- Outer dashed border -->
+  <rect x="30" y="75" width="340" height="560"
+        rx="14" ry="14"
+        fill="#1e2030" stroke="#414868" stroke-width="1.5"
+        stroke-dasharray="8,4"/>
+  <!-- PC label banner -->
+  <rect x="30" y="75" width="340" height="36"
+        rx="14" ry="14" fill="#24283b" stroke="#414868" stroke-width="1.5"/>
+  <rect x="30" y="97" width="340" height="14" fill="#24283b"/>
+  <text x="200" y="99" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="13" font-weight="700" fill="#7aa2f7">
+    sub1_PC
+  </text>
+  <text x="200" y="116" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#565f89">
+    키오스크 / UI PC  ·  192.168.10.105
+  </text>
+
+  <!-- Node 1: wakeup_worker -->
+  <rect x="55" y="135" width="290" height="110"
+        rx="8" ry="8" fill="#24283b" stroke="#414868" stroke-width="1.5"/>
+  <rect x="55" y="135" width="290" height="26"
+        rx="8" ry="8" fill="#2d3149" stroke="none"/>
+  <rect x="55" y="149" width="290" height="12" fill="#2d3149"/>
+  <text x="200" y="153" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="12" font-weight="700" fill="#c0caf5">
+    wakeup_worker
+  </text>
+  <!-- pipeline steps -->
+  <rect x="68" y="170" width="78" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="107" y="186" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#9ece6a">openWakeWord</text>
+  <text x="158" y="184" text-anchor="middle" font-size="14" fill="#565f89">→</text>
+  <rect x="170" y="170" width="62" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="201" y="186" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#e0af68">Whisper</text>
+  <text x="244" y="184" text-anchor="middle" font-size="14" fill="#565f89">→</text>
+  <rect x="255" y="170" width="72" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="291" y="186" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#bb9af7">GPT-4o</text>
+  <!-- subscriptions label -->
+  <text x="68" y="218" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">pub: /voice_command, /admin_command</text>
+  <text x="68" y="233" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">sub: /ui_bridge/state</text>
+
+  <!-- Node 2: client_bridge -->
+  <rect x="55" y="265" width="290" height="100"
+        rx="8" ry="8" fill="#24283b" stroke="#414868" stroke-width="1.5"/>
+  <rect x="55" y="265" width="290" height="26"
+        rx="8" ry="8" fill="#2d3149" stroke="none"/>
+  <rect x="55" y="279" width="290" height="12" fill="#2d3149"/>
+  <text x="200" y="283" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="12" font-weight="700" fill="#c0caf5">
+    client_bridge
+  </text>
+  <rect x="68" y="300" width="70" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="103" y="316" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#9ece6a">FastAPI</text>
+  <rect x="150" y="300" width="82" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="191" y="316" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#7aa2f7">WebSocket</text>
+  <rect x="244" y="300" width="60" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="274" y="316" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#e0af68">Web UI</text>
+  <text x="68" y="348" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">sub: /ui_bridge/state  →  browser push</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- RIGHT PC BOX — main_PC                                 -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="830" y="75" width="340" height="560"
+        rx="14" ry="14"
+        fill="#1e2030" stroke="#414868" stroke-width="1.5"
+        stroke-dasharray="8,4"/>
+  <rect x="830" y="75" width="340" height="36"
+        rx="14" ry="14" fill="#24283b" stroke="#414868" stroke-width="1.5"/>
+  <rect x="830" y="97" width="340" height="14" fill="#24283b"/>
+  <text x="1000" y="99" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="13" font-weight="700" fill="#bb9af7">
+    main_PC
+  </text>
+  <text x="1000" y="116" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#565f89">
+    로봇 PC  ·  ROS 2 Humble  ·  192.168.10.130
+  </text>
+
+  <!-- Node 3: bt_manager -->
+  <rect x="855" y="135" width="290" height="86"
+        rx="8" ry="8" fill="#24283b" stroke="#414868" stroke-width="1.5"/>
+  <rect x="855" y="135" width="290" height="26"
+        rx="8" ry="8" fill="#2d3149" stroke="none"/>
+  <rect x="855" y="149" width="290" height="12" fill="#2d3149"/>
+  <text x="1000" y="153" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="12" font-weight="700" fill="#c0caf5">
+    bt_manager
+  </text>
+  <rect x="868" y="170" width="90" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="913" y="186" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#e0af68">BT 큐</text>
+  <rect x="970" y="170" width="112" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="1026" y="186" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#bb9af7">SearchLogic (C++)</text>
+  <text x="868" y="213" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">sub: /voice_command  →  Action client</text>
+
+  <!-- Node 4: command_executer -->
+  <rect x="855" y="237" width="290" height="86"
+        rx="8" ry="8" fill="#24283b" stroke="#414868" stroke-width="1.5"/>
+  <rect x="855" y="237" width="290" height="26"
+        rx="8" ry="8" fill="#2d3149" stroke="none"/>
+  <rect x="855" y="251" width="290" height="12" fill="#2d3149"/>
+  <text x="1000" y="255" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="12" font-weight="700" fill="#c0caf5">
+    command_executer
+  </text>
+  <rect x="868" y="272" width="100" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="918" y="288" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#bb9af7">ActionServer</text>
+  <rect x="980" y="272" width="106" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="1033" y="288" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#9ece6a">ActionManager</text>
+  <text x="868" y="315" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">recv: execute_command  →  /grasp_object call</text>
+
+  <!-- Node 5: grasp_perception_node -->
+  <rect x="855" y="339" width="290" height="86"
+        rx="8" ry="8" fill="#24283b" stroke="#414868" stroke-width="1.5"/>
+  <rect x="855" y="339" width="290" height="26"
+        rx="8" ry="8" fill="#2d3149" stroke="none"/>
+  <rect x="855" y="353" width="290" height="12" fill="#2d3149"/>
+  <text x="1000" y="357" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="12" font-weight="700" fill="#c0caf5">
+    grasp_perception_node
+  </text>
+  <rect x="868" y="374" width="60" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="898" y="390" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#e0af68">YOLO</text>
+  <rect x="940" y="374" width="52" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="966" y="390" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#bb9af7">VLM</text>
+  <rect x="1004" y="374" width="52" height="24" rx="5" fill="#1a1b26" stroke="#414868" stroke-width="1"/>
+  <text x="1030" y="390" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" fill="#7aa2f7">PCA</text>
+  <text x="868" y="417" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">srv: /grasp_object  →  6-DoF pose</text>
+
+  <!-- Node 6: state_manager -->
+  <rect x="855" y="441" width="134" height="86"
+        rx="8" ry="8" fill="#24283b" stroke="#f7768e" stroke-width="1.5"/>
+  <rect x="855" y="441" width="134" height="26"
+        rx="8" ry="8" fill="#2a1e2a" stroke="none"/>
+  <rect x="855" y="455" width="134" height="12" fill="#2a1e2a"/>
+  <text x="922" y="459" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="11" font-weight="700" fill="#f7768e">
+    state_manager
+  </text>
+  <text x="868" y="480" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#a9b1d6">ESTOP 3단 정지</text>
+  <text x="868" y="496" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">sub: /admin_command</text>
+  <text x="868" y="512" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">srv: /dsr01/*</text>
+
+  <!-- Node 7: ui_bridge -->
+  <rect x="1001" y="441" width="144" height="86"
+        rx="8" ry="8" fill="#24283b" stroke="#414868" stroke-width="1.5"/>
+  <rect x="1001" y="441" width="144" height="26"
+        rx="8" ry="8" fill="#2d3149" stroke="none"/>
+  <rect x="1001" y="455" width="144" height="12" fill="#2d3149"/>
+  <text x="1073" y="459" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="11" font-weight="700" fill="#c0caf5">
+    ui_bridge
+  </text>
+  <text x="1014" y="480" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#a9b1d6">5토픽 집계</text>
+  <text x="1014" y="496" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#7aa2f7">pub: /ui_bridge/state</text>
+  <text x="1014" y="512" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">→ sub1_PC 전송</text>
+
+  <!-- Node 8: db_logger -->
+  <rect x="855" y="543" width="290" height="72"
+        rx="8" ry="8" fill="#24283b" stroke="#414868" stroke-width="1.5"/>
+  <rect x="855" y="543" width="290" height="26"
+        rx="8" ry="8" fill="#2d3149" stroke="none"/>
+  <rect x="855" y="557" width="290" height="12" fill="#2d3149"/>
+  <text x="1000" y="561" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="12" font-weight="700" fill="#c0caf5">
+    db_logger
+  </text>
+  <text x="868" y="582" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#a9b1d6">ROS 2 events  →  MySQL relay</text>
+  <text x="868" y="598" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">sub: 모든 주요 토픽  →  SQL INSERT</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- EXTERNAL ENTITIES (DSR, MySQL)                         -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- DSR Controller -->
+  <rect x="855" y="645" width="134" height="36"
+        rx="8" ry="8" fill="#1e2030" stroke="#e0af68" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="922" y="667" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="11" fill="#e0af68">DSR 컨트롤러</text>
+
+  <!-- MySQL -->
+  <rect x="1001" y="645" width="144" height="36"
+        rx="8" ry="8" fill="#1e2030" stroke="#565f89" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="1073" y="667" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="11" fill="#565f89">MySQL</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- MIDDLE LANE — LAN + cross-PC connections               -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+
+  <!-- LAN backbone box -->
+  <rect x="394" y="285" width="412" height="46"
+        rx="8" ry="8" fill="#1e2030" stroke="#414868" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <text x="600" y="313" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="11" font-weight="700" fill="#a9b1d6">LAN  ·  192.168.10.0/24  ·  FastDDS</text>
+
+  <!-- Left PC → LAN horizontal connector -->
+  <line x1="370" y1="308" x2="394" y2="308"
+        stroke="#414868" stroke-width="1.5"/>
+  <!-- LAN → Right PC horizontal connector -->
+  <line x1="806" y1="308" x2="830" y2="308"
+        stroke="#414868" stroke-width="1.5"/>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- CROSS-PC ARROWS (go through middle lane)        -->
+  <!-- ─────────────────────────────────────────────── -->
+
+  <!--
+    Arrow 1: wakeup_worker → bt_manager  /voice_command  Topic (blue dashed)
+    Start: right edge of wakeup_worker (345, 190) → bend at mid x=600, y=180 → bt_manager left (855, 178)
+  -->
+  <path d="M 345,185 C 500,185 700,178 855,178"
+        stroke="#7aa2f7" stroke-width="1.8" stroke-dasharray="7,4"
+        fill="none" marker-end="url(#arrow-blue)"/>
+  <rect x="490" y="162" width="130" height="18" rx="4" fill="#1a1b26"/>
+  <text x="555" y="175" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#7aa2f7">/voice_command</text>
+
+  <!--
+    Arrow 2: ui_bridge → wakeup_worker  /ui_bridge/state  Topic (blue dashed, reversed)
+    Start: left edge of ui_bridge (1001, 484) → bend → right edge of wakeup_worker (345, 205)
+  -->
+  <path d="M 855,460 C 700,460 500,220 345,205"
+        stroke="#7aa2f7" stroke-width="1.8" stroke-dasharray="7,4"
+        fill="none" marker-end="url(#arrow-blue)"/>
+  <rect x="490" y="397" width="130" height="18" rx="4" fill="#1a1b26"/>
+  <text x="555" y="410" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#7aa2f7">/ui_bridge/state</text>
+
+  <!--
+    Arrow 3: wakeup_worker → state_manager  /admin_command  Topic (red dashed)
+    Start: right edge wakeup_worker (345,200) → mid lane y=340 → state_manager left (855, 484)
+  -->
+  <path d="M 345,200 C 500,200 700,484 855,484"
+        stroke="#f7768e" stroke-width="1.8" stroke-dasharray="7,4"
+        fill="none" marker-end="url(#arrow-red)"/>
+  <rect x="490" y="340" width="130" height="18" rx="4" fill="#1a1b26"/>
+  <text x="555" y="353" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#f7768e">/admin_command</text>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <!-- INTRA-MAIN_PC ARROWS                            -->
+  <!-- ─────────────────────────────────────────────── -->
+
+  <!--
+    Arrow 4: bt_manager → command_executer  execute_command  Action (purple solid)
+    bt_manager bottom center (1000, 221) → command_executer top center (1000, 237)
+  -->
+  <line x1="1000" y1="221" x2="1000" y2="237"
+        stroke="#bb9af7" stroke-width="2"
+        marker-end="url(#arrow-purple)"/>
+  <rect x="1010" y="224" width="118" height="16" rx="4" fill="#1a1b26"/>
+  <text x="1069" y="235" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#bb9af7">execute_command [Action]</text>
+
+  <!--
+    Arrow 5: command_executer → grasp_perception_node  /grasp_object  Service (green solid)
+    command_executer bottom center (1000, 323) → grasp_perception_node top center (1000, 339)
+  -->
+  <line x1="1000" y1="323" x2="1000" y2="339"
+        stroke="#9ece6a" stroke-width="2"
+        marker-end="url(#arrow-green)"/>
+  <rect x="1010" y="326" width="118" height="16" rx="4" fill="#1a1b26"/>
+  <text x="1069" y="337" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#9ece6a">/grasp_object [Srv]</text>
+
+  <!--
+    Arrow 6: state_manager → DSR  /dsr01/*  Service (orange solid)
+    state_manager bottom center (922, 527) → DSR top center (922, 645)
+  -->
+  <line x1="922" y1="527" x2="922" y2="645"
+        stroke="#e0af68" stroke-width="2"
+        marker-end="url(#arrow-orange)"/>
+  <rect x="932" y="578" width="96" height="16" rx="4" fill="#1a1b26"/>
+  <text x="980" y="589" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#e0af68">/dsr01/* [Srv]</text>
+
+  <!--
+    Arrow 7: db_logger → MySQL  SQL  (gray solid)
+    db_logger bottom: right section (1073, 615) → MySQL top (1073, 645)
+  -->
+  <line x1="1073" y1="615" x2="1073" y2="645"
+        stroke="#565f89" stroke-width="2"
+        marker-end="url(#arrow-gray)"/>
+  <rect x="1082" y="627" width="42" height="16" rx="4" fill="#1a1b26"/>
+  <text x="1103" y="638" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#565f89">SQL</text>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- LEGEND (bottom-right)                                  -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <rect x="30" y="660" width="340" height="82"
+        rx="8" ry="8" fill="#1e2030" stroke="#414868" stroke-width="1"/>
+  <text x="200" y="678" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="10" font-weight="700" fill="#a9b1d6" letter-spacing="1">LEGEND</text>
+
+  <!-- Row 1 -->
+  <line x1="50" y1="693" x2="86" y2="693"
+        stroke="#7aa2f7" stroke-width="2" stroke-dasharray="7,4"/>
+  <polygon points="84,689 92,693 84,697" fill="#7aa2f7"/>
+  <text x="98" y="697" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#a9b1d6">ROS 2 Topic</text>
+
+  <line x1="188" y1="693" x2="224" y2="693"
+        stroke="#f7768e" stroke-width="2" stroke-dasharray="7,4"/>
+  <polygon points="222,689 230,693 222,697" fill="#f7768e"/>
+  <text x="236" y="697" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#a9b1d6">ESTOP / UNLOCK</text>
+
+  <!-- Row 2 -->
+  <line x1="50" y1="714" x2="92" y2="714"
+        stroke="#bb9af7" stroke-width="2"/>
+  <polygon points="90,710 98,714 90,718" fill="#bb9af7"/>
+  <text x="104" y="718" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#a9b1d6">ROS 2 Action</text>
+
+  <line x1="188" y1="714" x2="230" y2="714"
+        stroke="#e0af68" stroke-width="2"/>
+  <polygon points="228,710 236,714 228,718" fill="#e0af68"/>
+  <text x="242" y="718" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#a9b1d6">DSR Services</text>
+
+  <!-- Row 3 -->
+  <line x1="50" y1="735" x2="92" y2="735"
+        stroke="#9ece6a" stroke-width="2"/>
+  <polygon points="90,731 98,735 90,739" fill="#9ece6a"/>
+  <text x="104" y="739" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#a9b1d6">ROS 2 Service</text>
+
+  <line x1="188" y1="735" x2="230" y2="735"
+        stroke="#565f89" stroke-width="2"/>
+  <polygon points="228,731 236,735 228,739" fill="#565f89"/>
+  <text x="242" y="739" font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9.5" fill="#a9b1d6">DB / Internal</text>
+
+  <!-- watermark -->
+  <text x="600" y="750" text-anchor="middle"
+        font-family="'Consolas','SF Mono','Fira Code',monospace"
+        font-size="9" fill="#2a2d3d">
+    cobot2 · arch-system · 2026
+  </text>
+
+</svg>
+</body>
+</html>
