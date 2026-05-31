@@ -116,3 +116,104 @@
     </div>
     <aside class="notes">숫자로 먼저 임팩트를 준 뒤 기술 설명으로 넘어간다.</aside>
   </section>
+
+  <!-- Slide 5 — 문제 정의 -->
+  <section class="slide" data-slide="5">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · PROBLEM DEFINITION</p>
+      <h2 class="h2">왜 음성 인터페이스가 필요한가</h2>
+    </header>
+    <div class="slide-body problem-grid">
+      <div>
+        <img src="assets/media/social-background.png" alt="사회적 배경">
+        <p class="caption"><b>고령화·1인 가구</b> 증가 — 단순 반복 작업 자동화 수요 급증</p>
+      </div>
+      <div>
+        <img src="assets/media/market-trend.png" alt="시장 트렌드">
+        <p class="caption"><b>협동로봇 시장</b> 연평균 30%+ 성장 — 음성 UX 가 진입 장벽 낮춤</p>
+      </div>
+    </div>
+    <aside class="notes">배경 슬라이드. 간결하게 1장으로 마무리.</aside>
+  </section>
+
+  <!-- Slide 6 — 시스템 아키텍처 -->
+  <section class="slide" data-slide="6">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · SYSTEM ARCHITECTURE</p>
+      <h2 class="h2">두 PC, 한 명령 — 책임 분리 구조</h2>
+    </header>
+    <div class="slide-body" style="height:100%;">
+      <iframe class="diagram-frame" src="diagrams/arch-system.html" title="시스템 아키텍처"></iframe>
+    </div>
+    <aside class="notes">sub1(음성/UI) ↔ CycloneDDS LAN ↔ main(로봇). 토픽/액션/서비스 색상 구분.</aside>
+  </section>
+
+  <!-- Slide 7 — 노드 아키텍처 -->
+  <section class="slide" data-slide="7">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · NODE ARCHITECTURE</p>
+      <h2 class="h2">노드 7개 · 단일 책임 원칙</h2>
+    </header>
+    <div class="slide-body" style="height:100%;">
+      <iframe class="diagram-frame" src="diagrams/arch-nodes.html" title="노드 아키텍처"></iframe>
+    </div>
+    <aside class="notes">7노드 각 책임 + 인터페이스. 14노드에서 R1 통합 결과.</aside>
+  </section>
+
+  <!-- Slide 8 — 전체 워크플로우 -->
+  <section class="slide" data-slide="8">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · FULL WORKFLOW</p>
+      <h2 class="h2">발화부터 파지까지 — 단계별 흐름</h2>
+    </header>
+    <div class="slide-body" style="height:100%;">
+      <iframe class="diagram-frame" src="diagrams/arch-workflow.html" title="전체 워크플로우"></iframe>
+    </div>
+    <aside class="notes">8단계 swimlane. 동적 파지 분기 포함.</aside>
+  </section>
+
+  <!-- Slide 9 — 기술 스택 -->
+  <section class="slide" data-slide="9">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · TECH STACK</p>
+      <h2 class="h2">네 카테고리, 한 페이지 — 핵심 기술 스택</h2>
+    </header>
+    <div class="slide-body tech-stack-grid">
+      <div class="tech-cat">
+        <h4><i data-lucide="cpu"></i> HARDWARE</h4>
+        <div class="tech-items">
+          <span class="tech-item">Doosan m0609</span>
+          <span class="tech-item">OnRobot RG2</span>
+          <span class="tech-item">RealSense D435</span>
+        </div>
+      </div>
+      <div class="tech-cat">
+        <h4><i data-lucide="brain"></i> AI</h4>
+        <div class="tech-items">
+          <span class="tech-item"><img src="https://cdn.simpleicons.org/pytorch/EE4C2C" alt="">YOLO11s</span>
+          <span class="tech-item"><img src="https://cdn.simpleicons.org/openai/10A37F" alt="">GPT-4o</span>
+          <span class="tech-item">Whisper</span>
+          <span class="tech-item">openWakeWord</span>
+        </div>
+      </div>
+      <div class="tech-cat">
+        <h4><i data-lucide="network"></i> MIDDLEWARE</h4>
+        <div class="tech-items">
+          <span class="tech-item"><img src="https://cdn.simpleicons.org/ros/22A7F0" alt="">ROS 2</span>
+          <span class="tech-item">BehaviorTree.CPP</span>
+          <span class="tech-item">CycloneDDS</span>
+          <span class="tech-item"><img src="https://cdn.simpleicons.org/docker/2496ED" alt="">Docker</span>
+        </div>
+      </div>
+      <div class="tech-cat">
+        <h4><i data-lucide="code-2"></i> DEV</h4>
+        <div class="tech-items">
+          <span class="tech-item"><img src="https://cdn.simpleicons.org/python/3776AB" alt="">Python</span>
+          <span class="tech-item">C++</span>
+          <span class="tech-item"><img src="https://cdn.simpleicons.org/mysql/4479A1" alt="">MySQL</span>
+          <span class="tech-item"><img src="https://cdn.simpleicons.org/fastapi/009688" alt="">FastAPI</span>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">4카테고리. simpleicons + Lucide 혼용.</aside>
+  </section>
