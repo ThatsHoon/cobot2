@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOMIE — 사람의 말을 알아듣고 손을 쓰는 협동로봇</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/animations/animations.css">
+<link rel="stylesheet" href="assets/themes/tokyo-night.css">
+<link rel="stylesheet" href="assets/overrides.css">
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"
+        integrity="sha384-hJnF5AwidE18GSWTAGHv3ByzzvfNZ1Tcx5y1UUV3WkauuMCEzBJBMSwSt/PUPXnM"
+        crossorigin="anonymous"></script>
+</head>
+<body class="theme-tokyo-night tpl-presenter-mode-reveal">
+
+<div class="deck">
+
+  <!-- Slide 1 — 표지 -->
+  <section class="slide" data-slide="1">
+    <header class="slide-head">
+      <p class="kicker">DOOSAN ROBOTICS BOOTCAMP · ROKEY · B-2 TEAM</p>
+      <h2 class="h2">사람의 말을 알아듣고 손을 쓰는 협동로봇</h2>
+    </header>
+    <div class="slide-body cover">
+      <img class="cover-hero" src="assets/media/cover-hero.png" alt="HOMIE 로봇 시연">
+      <div class="cover-meta">
+        <p class="name">HOMIE</p>
+        <p class="tag">Helping Out! Making It Easy!</p>
+        <div class="kw">
+          <span class="pill">음성 인식</span>
+          <span class="pill">멀티모달 AI</span>
+          <span class="pill">ROS 2</span>
+          <span class="pill">행동 트리</span>
+          <span class="pill">분산 시스템</span>
+        </div>
+        <div class="cover-tech">
+          <img src="https://cdn.simpleicons.org/ros/22A7F0" alt="ROS">
+          <img src="https://cdn.simpleicons.org/python/3776AB" alt="Python">
+          <img src="https://cdn.simpleicons.org/openai/10A37F" alt="OpenAI">
+          <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker">
+          <img src="https://cdn.simpleicons.org/mysql/4479A1" alt="MySQL">
+          <img src="https://cdn.simpleicons.org/pytorch/EE4C2C" alt="PyTorch">
+        </div>
+      </div>
+    </div>
+    <aside class="notes">표지. 한 마디 음성으로 작업이 완결되는 시스템.</aside>
+  </section>
+
+  <!-- Slide 2 — 시연 영상 -->
+  <section class="slide" data-slide="2">
+    <header class="slide-head">
+      <p class="kicker">SECTION 01 · DEMO</p>
+      <h2 class="h2">시연 영상</h2>
+    </header>
+    <div class="slide-body demo-main">
+      <iframe class="demo-video"
+        src="https://www.youtube.com/embed/n7uikEVqS7M"
+        title="HOMIE 시연 영상"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+      <div class="flow-vertical">
+        <div class="flow-step"><span class="n">01</span><span>"왓썹 호미" 호출어 감지</span></div>
+        <div class="flow-step"><span class="n">02</span><span>5초 녹음 → Whisper STT</span></div>
+        <div class="flow-step"><span class="n">03</span><span>GPT-4o 명령 분해 → JSON</span></div>
+        <div class="flow-step"><span class="n">04</span><span>행동 트리 탐색 → 발견 → 접근</span></div>
+        <div class="flow-step"><span class="n">05</span><span>VLM + PCA 잡는 자세 결정</span></div>
+        <div class="flow-step"><span class="n">06</span><span>m0609 + RG2 집기 → 완료</span></div>
+      </div>
+    </div>
+    <aside class="notes">영상 재생 전 간단히 6단계 흐름 설명.</aside>
+  </section>
+
+  <!-- Slide 3 — 6가지 실제 동작 -->
+  <section class="slide" data-slide="3">
+    <header class="slide-head">
+      <p class="kicker">SECTION 01 · ACTION CATALOG</p>
+      <h2 class="h2">6가지 실제 동작 — 사과·후추통 데모</h2>
+    </header>
+    <div class="slide-body demo-grid">
+      <div class="cell"><img src="assets/media/demo-apple-find.gif" alt="사과 탐색"><span class="lbl">Find</span></div>
+      <div class="cell"><img src="assets/media/demo-apple-pick.gif" alt="사과 집기"><span class="lbl">Pick</span></div>
+      <div class="cell"><img src="assets/media/demo-apple-trash.gif" alt="사과 버리기"><span class="lbl">Trash</span></div>
+      <div class="cell"><img src="assets/media/demo-shaker-pick.gif" alt="후추통 집기"><span class="lbl">Pick (shaker)</span></div>
+      <div class="cell"><img src="assets/media/demo-shaker-shake.gif" alt="후추통 흔들기"><span class="lbl">Shake</span></div>
+      <div class="cell"><img src="assets/media/demo-shaker-pour.gif" alt="후추통 붓기"><span class="lbl">Pour</span></div>
+    </div>
+    <aside class="notes">GIF 6개. 사과(find/pick/trash) + 후추통(pick/shake/pour).</aside>
+  </section>
+
+  <!-- Slide 4 — 핵심 수치 -->
+  <section class="slide" data-slide="4">
+    <header class="slide-head">
+      <p class="kicker">SECTION 01 · KEY METRICS</p>
+      <h2 class="h2">2주 만에 완성한 동작 가능한 시스템</h2>
+    </header>
+    <div class="slide-body metric-grid">
+      <div class="metric-card">
+        <span class="value">99.0%</span>
+        <span class="label">YOLO11s mAP@50</span>
+      </div>
+      <div class="metric-card">
+        <span class="value">96.8%</span>
+        <span class="label">F1 Score</span>
+      </div>
+      <div class="metric-card">
+        <span class="value">7</span>
+        <span class="label">ROS 2 노드 (통합 후)</span>
+      </div>
+      <div class="metric-card">
+        <span class="value">2주</span>
+        <span class="label">설계→구현→시연</span>
+      </div>
+    </div>
+    <aside class="notes">숫자로 먼저 임팩트를 준 뒤 기술 설명으로 넘어간다.</aside>
+  </section>
