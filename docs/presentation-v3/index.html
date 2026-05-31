@@ -344,3 +344,110 @@
     </div>
     <aside class="notes">VLM 이 잡는 부위를 지정한다는 게 핵심. ROI×1.5 로 손가락 충돌 여유 확보.</aside>
   </section>
+
+  <!-- Slide 14 — 동적 파지 ③ PCA 접근 계산 -->
+  <section class="slide" data-slide="14">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · DYNAMIC GRASP · 3/3</p>
+      <h2 class="h2">포인트클라우드 PCA — 물체 형상으로 그리퍼 자세 결정</h2>
+    </header>
+    <div class="slide-body two-col">
+      <div class="grasp-steps">
+        <div class="grasp-step">
+          <span class="num">09</span>
+          <div class="body"><div class="t">포인트클라우드 분포 분석 (PCA)</div><div class="s">주성분 분석으로 물체 주축·단축 계산</div></div>
+        </div>
+        <div class="grasp-step">
+          <span class="num">10</span>
+          <div class="body"><div class="t">형상별 접근 전략 분기</div><div class="s">평면(접시) → 반경 방향 / 원통(후추통) → 장축 수직</div></div>
+        </div>
+        <div class="grasp-step">
+          <span class="num">11</span>
+          <div class="body"><div class="t">그리퍼 자세 &amp; 접근 벡터 산출</div><div class="s">T_gripper2camera(4×4) 핸드아이 변환 → 베이스 좌표</div></div>
+        </div>
+        <div class="grasp-step">
+          <span class="num">12</span>
+          <div class="body"><div class="t">2차 위치에서 출발 → GRIP</div><div class="s">movel 접근 → RG2 width 제어 → 파지 완료</div></div>
+        </div>
+      </div>
+      <svg viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:8px;background:#0d1117;">
+        <text x="150" y="22" text-anchor="middle" fill="#a9b1d6" font-size="13" font-family="monospace">Point Cloud + PCA</text>
+        <ellipse cx="150" cy="120" rx="90" ry="40" fill="none" stroke="#3d59a1" stroke-width="1" stroke-dasharray="4"/>
+        <g fill="#7aa2f7" opacity=".7">
+          <circle cx="120" cy="110" r="3"/><circle cx="135" cy="105" r="3"/>
+          <circle cx="150" cy="100" r="3"/><circle cx="165" cy="105" r="3"/>
+          <circle cx="180" cy="110" r="3"/><circle cx="125" cy="120" r="3"/>
+          <circle cx="140" cy="115" r="3"/><circle cx="155" cy="115" r="3"/>
+          <circle cx="170" cy="120" r="3"/><circle cx="130" cy="130" r="3"/>
+          <circle cx="145" cy="125" r="3"/><circle cx="160" cy="128" r="3"/>
+          <circle cx="175" cy="130" r="3"/>
+        </g>
+        <line x1="70" y1="115" x2="230" y2="115" stroke="#f7768e" stroke-width="2.5" marker-end="url(#arr-r)"/>
+        <text x="232" y="119" fill="#f7768e" font-size="11" font-family="monospace">PC1</text>
+        <line x1="150" y1="165" x2="150" y2="70" stroke="#9ece6a" stroke-width="2.5" marker-end="url(#arr-g)"/>
+        <text x="154" y="68" fill="#9ece6a" font-size="11" font-family="monospace">PC2</text>
+        <rect x="108" y="48" width="12" height="18" rx="2" fill="#bb9af7" opacity=".8"/>
+        <rect x="122" y="48" width="12" height="18" rx="2" fill="#bb9af7" opacity=".8"/>
+        <text x="136" y="44" fill="#bb9af7" font-size="10" font-family="monospace">gripper</text>
+        <defs>
+          <marker id="arr-r" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="#f7768e"/>
+          </marker>
+          <marker id="arr-g" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L6,3 z" fill="#9ece6a"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+    <aside class="notes">PCA 두 주성분으로 물체 방향 파악 → 형상별 분기 전략이 핵심.</aside>
+  </section>
+
+  <!-- Slide 15 — 핸드아이 캘리브레이션 -->
+  <section class="slide" data-slide="15">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · HAND-EYE CALIBRATION</p>
+      <h2 class="h2">카메라 좌표 → 베이스 좌표 — 5° 기울임의 해결</h2>
+    </header>
+    <div class="slide-body handeye">
+      <img src="assets/media/vision-depth-tilt.png" alt="5도 기울임 도식">
+      <div>
+        <p style="font-size:clamp(13px,1.3cqw,17px);color:var(--text-2);margin:0 0 1.5cqh;">
+          카메라가 5° 아래로 기울어진 환경에서 <b style="color:var(--text-1);">depth 오차</b>가 발생.<br>
+          cv2.calibrateHandEye() 로 4×4 변환 행렬을 사전 계산해 런타임에 보정.
+        </p>
+        <div class="matrix-block">
+<span class="comment"># T_gripper2camera.npy (4×4, 단위: mm)</span>
+[[ 0.999  -0.012   0.034  -28.3 ]
+ [ 0.013   0.999  -0.018   12.1 ]
+ [-0.034   0.019   0.999  112.5 ]
+ [ 0.      0.      0.       1.  ]]
+        </div>
+        <p style="font-size:clamp(11px,1.1cqw,13px);color:var(--text-3);margin:1cqh 0 0;">
+          파일 미발견 시 RuntimeError — fail-fast 설계 (무음 실패 방지)
+        </p>
+      </div>
+    </div>
+    <aside class="notes">5° 기울임이 없으면 이 캘리브레이션이 필요 없다는 점 강조.</aside>
+  </section>
+
+  <!-- Slide 16 — 고정 행동 시퀀스 -->
+  <section class="slide" data-slide="16">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · FIXED SEQUENCES</p>
+      <h2 class="h2">파지 후 — 사전 설계된 고정 시퀀스 실행</h2>
+    </header>
+    <div class="slide-body seq-layout">
+      <div class="seq-list">
+        <div class="seq-item"><i data-lucide="arrow-right" class="icon"></i><span><b>place</b> — 지정 위치에 내려놓기</span></div>
+        <div class="seq-item"><i data-lucide="trash-2" class="icon"></i><span><b>trash</b> — 쓰레기통 위 해제</span></div>
+        <div class="seq-item"><i data-lucide="droplets" class="icon"></i><span><b>pour</b> — 컵 위에서 기울여 붓기</span></div>
+        <div class="seq-item"><i data-lucide="move" class="icon"></i><span><b>shake</b> — 정해진 자세에서 흔들기</span></div>
+        <div class="seq-item"><i data-lucide="home" class="icon"></i><span><b>홈 복귀</b> — 모든 시퀀스 후 대기 자세</span></div>
+      </div>
+      <div class="seq-gifs">
+        <img src="assets/media/demo-apple-trash.gif" alt="trash 동작">
+        <img src="assets/media/demo-shaker-pour.gif" alt="pour 동작">
+      </div>
+    </div>
+    <aside class="notes">동적 파지 → 고정 시퀀스 → 홈 복귀 흐름. 시퀀스는 하드코딩 DSR 모션.</aside>
+  </section>
