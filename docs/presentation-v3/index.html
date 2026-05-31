@@ -217,3 +217,130 @@
     </div>
     <aside class="notes">4카테고리. simpleicons + Lucide 혼용.</aside>
   </section>
+
+  <!-- Slide 10 — 음성 파이프라인 -->
+  <section class="slide" data-slide="10">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · VOICE PIPELINE</p>
+      <h2 class="h2">발화에서 JSON 명령까지 — 6초 흐름</h2>
+    </header>
+    <div class="slide-body two-col">
+      <div class="pipeline-steps">
+        <div class="pipeline-step">
+          <i data-lucide="mic" class="icon"></i>
+          <div class="text"><div class="title">호출어 감지</div><div class="sub">openwakeword · wassup_homie.onnx</div></div>
+        </div>
+        <div class="pipeline-step">
+          <i data-lucide="radio" class="icon"></i>
+          <div class="text"><div class="title">5초 녹음</div><div class="sub">PyAudio → WAV bytes</div></div>
+        </div>
+        <div class="pipeline-step">
+          <i data-lucide="message-circle" class="icon"></i>
+          <div class="text"><div class="title">Whisper STT</div><div class="sub">한국어 전사 · medium 모델</div></div>
+        </div>
+        <div class="pipeline-step">
+          <i data-lucide="bot" class="icon"></i>
+          <div class="text"><div class="title">GPT-4o 정련</div><div class="sub">pick/place/pour 중 단일 액션 카탈로그로 정규화</div></div>
+        </div>
+        <div class="pipeline-step">
+          <i data-lucide="send" class="icon"></i>
+          <div class="text"><div class="title">/voice_command 발행</div><div class="sub">JSON 배열 → bt_manager 수신</div></div>
+        </div>
+      </div>
+      <img src="assets/media/stt-prompt-rule.png" alt="프롬프트 규칙">
+    </div>
+    <aside class="notes">5단계 파이프라인. 프롬프트 규칙이 핵심 — 카탈로그 외 명령은 거부.</aside>
+  </section>
+
+  <!-- Slide 11 — BT 오케스트레이션 -->
+  <section class="slide" data-slide="11">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · BEHAVIOR TREE</p>
+      <h2 class="h2">한 명령이 여러 단계로 — BehaviorTree.CPP v3</h2>
+    </header>
+    <div class="slide-body two-col">
+      <div class="bt-steps">
+        <div class="bt-step">
+          <div class="title">PopNextTask</div>
+          <div class="sub">JSON 큐에서 다음 액션 꺼내기 · 드레인 후 reset 자동 emit</div>
+        </div>
+        <div class="bt-step">
+          <div class="title">IsTargetRequired?</div>
+          <div class="sub">물체 탐색 필요 여부 분기</div>
+        </div>
+        <div class="bt-step">
+          <div class="title">SearchLogic (Fallback)</div>
+          <div class="sub">IsTargetLocated → detect_in_place → finding · 변칙 대응</div>
+        </div>
+        <div class="bt-step">
+          <div class="title">ExecutePythonAction</div>
+          <div class="sub">execute_command 액션 서버 호출 → executer 실행</div>
+        </div>
+      </div>
+      <div class="bt-viewer">
+        <img src="assets/media/bt-groot-viewer.png" alt="Groot 2 BT 뷰어">
+        <p style="font-size:clamp(10px,1.0cqw,13px);color:var(--text-3);margin-top:.5cqh;">Groot 2 · KeepRunningUntilFailure → SearchLogic Fallback</p>
+      </div>
+    </div>
+    <aside class="notes">Groot 2 스크린샷 보여주며 BT 구조 설명.</aside>
+  </section>
+
+  <!-- Slide 12 — 동적 파지 ① 탐색 -->
+  <section class="slide" data-slide="12">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · DYNAMIC GRASP · 1/3</p>
+      <h2 class="h2">1차 탐색 — YOLO 로 목표 물체 발견</h2>
+    </header>
+    <div class="slide-body two-col">
+      <div class="grasp-steps">
+        <div class="grasp-step">
+          <span class="num">01</span>
+          <div class="body"><div class="t">1차 탐색 위치로 이동</div><div class="s">사전 정의 관찰 자세로 movel</div></div>
+        </div>
+        <div class="grasp-step">
+          <span class="num">02</span>
+          <div class="body"><div class="t">YOLO11s 탐지</div><div class="s">7 클래스 (사과·바나나·후추통 등) 실시간 detect</div></div>
+        </div>
+        <div class="grasp-step">
+          <span class="num">03</span>
+          <div class="body"><div class="t">depth 기반 3D 위치 추정</div><div class="s">RealSense D435 depth + 카메라 내부 파라미터 → 3D 좌표</div></div>
+        </div>
+        <div class="grasp-step">
+          <span class="num">04</span>
+          <div class="body"><div class="t">물체 근처로 이동 (approach)</div><div class="s">base_pose 오프셋만큼 movel → 2차 탐색 시야 확보</div></div>
+        </div>
+      </div>
+      <img src="assets/media/vision-yolo-result.png" alt="YOLO 탐지 결과">
+    </div>
+    <aside class="notes">1차 탐색은 빠른 위치 추정용. depth 오차가 있으므로 2차 근접 재탐지가 핵심.</aside>
+  </section>
+
+  <!-- Slide 13 — 동적 파지 ② 근접 재탐지 -->
+  <section class="slide" data-slide="13">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · DYNAMIC GRASP · 2/3</p>
+      <h2 class="h2">2차 근접 재탐지 — VLM ROI 로 depth 오차 예방</h2>
+    </header>
+    <div class="slide-body two-col">
+      <div class="grasp-steps">
+        <div class="grasp-step">
+          <span class="num">05</span>
+          <div class="body"><div class="t">2차 탐색 위치로 이동</div><div class="s">물체에 더 가까운 관찰 자세 — depth 오차 최소화</div></div>
+        </div>
+        <div class="grasp-step">
+          <span class="num">06</span>
+          <div class="body"><div class="t">YOLO 재탐지</div><div class="s">근접 위치에서 bbox 재획득</div></div>
+        </div>
+        <div class="grasp-step">
+          <span class="num">07</span>
+          <div class="body"><div class="t">VLM ROI 요청 (GPT-4o)</div><div class="s">이미지 crop 전송 → "잡기 가장 좋은 부위" 좌표 반환</div></div>
+        </div>
+        <div class="grasp-step">
+          <span class="num">08</span>
+          <div class="body"><div class="t">ROI × 1.5 포인트클라우드 추출</div><div class="s">VLM 반환 ROI 를 1.5배 확장 → depth cloud 필터링</div></div>
+        </div>
+      </div>
+      <img src="assets/media/vision-workflow.png" alt="비전 워크플로우">
+    </div>
+    <aside class="notes">VLM 이 잡는 부위를 지정한다는 게 핵심. ROI×1.5 로 손가락 충돌 여유 확보.</aside>
+  </section>
