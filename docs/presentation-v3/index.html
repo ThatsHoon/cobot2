@@ -451,3 +451,132 @@
     </div>
     <aside class="notes">동적 파지 → 고정 시퀀스 → 홈 복귀 흐름. 시퀀스는 하드코딩 DSR 모션.</aside>
   </section>
+
+  <!-- Slide 17 — 안전 시스템 + DB 로깅 -->
+  <section class="slide" data-slide="17">
+    <header class="slide-head">
+      <p class="kicker">SECTION 03 · SAFETY &amp; PERSISTENCE</p>
+      <h2 class="h2">즉시 정지 + DB 격리 — 운영 안정성 설계</h2>
+    </header>
+    <div class="slide-body safety-db">
+      <div>
+        <div class="estop-steps">
+          <div class="estop-step"><span class="n">1</span><span>move_stop — 현재 모션 즉시 중단</span></div>
+          <div class="estop-step"><span class="n">2</span><span>drl_stop — DRL 프로그램 종료</span></div>
+          <div class="estop-step"><span class="n">3</span><span>set_safety_mode(RECOVERY) — 안전 모드 전환</span></div>
+        </div>
+        <img src="assets/media/ui-admin-dashboard.gif" alt="관리자 대시보드" style="width:100%;border-radius:8px;margin-top:1cqh;">
+      </div>
+      <div>
+        <img src="assets/media/db-docker-structure.png" alt="DB Docker 구조" style="width:100%;border-radius:8px;">
+        <p style="font-size:clamp(11px,1.1cqw,14px);color:var(--text-2);margin-top:0.8cqh;">
+          admin 컨테이너는 <b style="color:var(--text-1);">DDS 미참여</b> — DB 만 공유.<br>
+          ROS 노드와 완전 격리된 디버깅 창.
+        </p>
+      </div>
+    </div>
+    <aside class="notes">ESTOP 3단 + DB-only 격리 패턴. silent 실패 방지가 설계 원칙.</aside>
+  </section>
+
+  <!-- Slide 18 — YOLO 학습 + 리팩터링 -->
+  <section class="slide" data-slide="18">
+    <header class="slide-head">
+      <p class="kicker">SECTION 03 · QUALITY</p>
+      <h2 class="h2">데이터 정제 + 아키텍처 통합 — 품질 개선</h2>
+    </header>
+    <div class="slide-body dual-col">
+      <div>
+        <img src="assets/media/vision-yolo-comparison.png" alt="YOLO v3 vs v4 비교">
+        <p style="font-size:clamp(11px,1.1cqw,14px);color:var(--text-2);margin-top:0.8cqh;">
+          v3(bbox 중복·라벨오류) → v4(정제) · fitness <b style="color:var(--good);">0.65 → 0.93</b>
+        </p>
+        <img src="assets/media/yolo-fitness-overview.png" alt="YOLO fitness 개요" style="margin-top:1cqh;border-radius:8px;width:100%;">
+      </div>
+      <div class="refactor-compare">
+        <p style="font-size:clamp(14px,1.4cqw,18px);font-weight:700;margin:0 0 1.2cqh;">노드 통합 (R1)</p>
+        <div class="refactor-row">
+          <span class="badge badge-before">Before</span>
+          <span>14 노드 — voice_processing, VisionStrategy, pick_vertical/horizontal/side …</span>
+        </div>
+        <div style="text-align:center;font-size:clamp(18px,2cqw,28px);color:var(--accent);margin:.8cqh 0;">↓</div>
+        <div class="refactor-row">
+          <span class="badge badge-after">After</span>
+          <span>7 노드 — 단일 책임, grasp_perception_node 단일 진입점</span>
+        </div>
+        <p style="font-size:clamp(11px,1.1cqw,13px);color:var(--text-2);margin-top:1.2cqh;">
+          pick_vertical/horizontal/side 제거 → grasp_node 의 mode 파라미터로 통일.
+        </p>
+      </div>
+    </div>
+    <aside class="notes">데이터 품질 + 아키텍처 정리 두 가지를 한 장으로.</aside>
+  </section>
+
+  <!-- Slide 19 — 도전과제 & 해결 -->
+  <section class="slide" data-slide="19">
+    <header class="slide-head">
+      <p class="kicker">SECTION 03 · CHALLENGES</p>
+      <h2 class="h2">네 가지 함정 · 네 가지 해결</h2>
+    </header>
+    <div class="slide-body challenge-grid">
+      <div class="challenge-card">
+        <span class="tag-bad">BT</span>
+        <h4>KeepRunningUntilFailure 무한 루프</h4>
+        <p class="prob">큐 소진 후 SUCCESS 가 없으면 BT 가 루트부터 재실행</p>
+        <p class="sol"><i data-lucide="check" style="width:14px;flex-shrink:0;"></i> PopNextTask 에 reset-after-drain 래치 — 큐 빔 → reset 1회 emit</p>
+      </div>
+      <div class="challenge-card">
+        <span class="tag-bad">VISION</span>
+        <h4>depth 카메라 원거리 오차</h4>
+        <p class="prob">1차 탐색 depth 값이 실제보다 크게 나와 접근 위치 빗나감</p>
+        <p class="sol"><i data-lucide="check" style="width:14px;flex-shrink:0;"></i> 2차 근접 재탐지 — 물체 바로 앞에서 depth 재측정</p>
+      </div>
+      <div class="challenge-card">
+        <span class="tag-bad">AI</span>
+        <h4>VLM latency (1–3초)</h4>
+        <p class="prob">매 프레임 GPT-4o 호출 시 파지 사이클 전체가 지연</p>
+        <p class="sol"><i data-lucide="check" style="width:14px;flex-shrink:0;"></i> 2차 탐지 1회만 호출 — 결과 캐시, 재호출 없음</p>
+      </div>
+      <div class="challenge-card">
+        <span class="tag-bad">DDS</span>
+        <h4>CycloneDDS 멀티캐스트 불안정</h4>
+        <p class="prob">main_PC ↔ sub1_PC 간 토픽 수신 지연·드롭</p>
+        <p class="sol"><i data-lucide="check" style="width:14px;flex-shrink:0;"></i> cyclonedds.xml 유니캐스트 피어 명시 — 안정적 cross-host 통신</p>
+      </div>
+    </div>
+    <aside class="notes">실제 겪은 문제 4개. 문제→해결 포맷으로 문제 해결 능력 어필.</aside>
+  </section>
+
+  <!-- Slide 20 — 마무리 / Q&A -->
+  <section class="slide" data-slide="20">
+    <header class="slide-head">
+      <p class="kicker">SECTION 04 · Q &amp; A</p>
+      <h2 class="h2">감사합니다 — 질문 환영합니다</h2>
+    </header>
+    <div class="slide-body closing">
+      <p class="big gradient-text">HOMIE</p>
+      <div class="lessons">
+        <div class="lesson-item"><span class="lesson-num">01</span><span>음성 UX 는 <b>프롬프트 규칙</b>이 전부 — 카탈로그 외는 거부</span></div>
+        <div class="lesson-item"><span class="lesson-num">02</span><span><b>2단계 탐지</b>가 depth 오차를 이긴다 — 근접 재탐지가 핵심</span></div>
+        <div class="lesson-item"><span class="lesson-num">03</span><span>아키텍처는 <b>단일 책임</b>으로 — 14→7 노드, 테스트 가능성 향상</span></div>
+      </div>
+      <div class="links">
+        <img src="https://cdn.simpleicons.org/github/C9D1D9" alt="GitHub">
+        <span style="font-size:clamp(13px,1.3cqw,18px);color:var(--text-2);">github.com/dev-kibeom/robo_chef</span>
+      </div>
+    </div>
+    <aside class="notes">3가지 핵심 교훈으로 마무리. Q&A 시간.</aside>
+  </section>
+
+</div><!-- /.deck -->
+
+<!-- 네비게이션 -->
+<div class="deck-header">
+  <span>HOMIE</span>
+  <span class="slide-number" data-current="1" data-total="20"></span>
+</div>
+<div class="progress-bar"><span></span></div>
+
+<script>lucide.createIcons();</script>
+<script src="assets/runtime.js"></script>
+</body>
+</html>
