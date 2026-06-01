@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cobot2 — HOMIE · Helping Out! Making It Easy!</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" href="assets/animations/animations.css">
+<link rel="stylesheet" href="assets/themes/tokyo-night.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/overrides.css">
+<!-- Lucide UMD · 버전 pin. SRI integrity 는 발표 직전 아래 명령으로 채워 넣어 CDN 변조 차단:
+       curl -sSL https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js | openssl dgst -sha384 -binary | openssl base64 -A
+     산출된 해시를 integrity="sha384-..." 로 본 script 태그에 추가. crossorigin 은 이미 설정. -->
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js" crossorigin="anonymous"></script>
+</head>
+<body class="theme-tokyo-night tpl-presenter-mode-reveal">
+
+<div class="deck">
+
+  <!-- Slide 1 — 표지 -->
+  <section class="slide" data-slide="1">
+    <header class="slide-head">
+      <p class="kicker">DOOSAN ROBOTICS BOOTCAMP · ROKEY · B-2 TEAM</p>
+      <h2 class="h2">사람의 말을 알아듣고 손을 쓰는 협동로봇</h2>
+    </header>
+    <div class="slide-body cover">
+      <img class="cover-hero" src="assets/media/cover-hero.png" alt="HOMIE 로봇 시연">
+      <div class="cover-meta">
+        <p class="name">HOMIE</p>
+        <p class="tag">Helping Out! Making It Easy! — Doosan m0609 기반 음성 협동로봇</p>
+        <div class="kw">
+          <span class="pill">음성 인식</span>
+          <span class="pill">멀티모달 AI</span>
+          <span class="pill">ROS 2</span>
+          <span class="pill">행동 트리</span>
+          <span class="pill">분산 시스템</span>
+        </div>
+        <div class="cover-tech">
+          <img src="https://cdn.simpleicons.org/ros/22A7F0" alt="ROS">
+          <img src="https://cdn.simpleicons.org/python/3776AB" alt="Python">
+          <img src="https://cdn.simpleicons.org/openai/10A37F" alt="OpenAI">
+          <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker">
+          <img src="https://cdn.simpleicons.org/mysql/4479A1" alt="MySQL">
+          <img src="https://cdn.simpleicons.org/pytorch/EE4C2C" alt="PyTorch">
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      한 마디 음성으로 끝나는 로봇 작업이라는 약속을 이 한 장으로 시작한다. 다음 슬라이드 데모로 즉시 풀어낸다.
+    </aside>
+  </section>
+
+  <!-- Slide 2 — 데모 시나리오 -->
+  <section class="slide" data-slide="2">
+    <header class="slide-head">
+      <p class="kicker">SECTION 01 · DEMO</p>
+      <h2 class="h2">시연 영상</h2>
+    </header>
+    <div class="slide-body demo-main">
+      <iframe class="demo-video"
+        src="https://www.youtube.com/embed/n7uikEVqS7M"
+        title="cobot2 시연 영상"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen></iframe>
+      <div class="flow-vertical">
+        <div class="flow-step"><span class="n">01</span><span class="t"><b>왓썹 호미</b> 호출어 감지 (openwakeword)</span></div>
+        <div class="flow-step"><span class="n">02</span><span class="t">5초 녹음 → <b>Whisper</b> 한국어 STT</span></div>
+        <div class="flow-step"><span class="n">03</span><span class="t"><b>GPT-4o</b> 가 [pick(apple) → trash] 시퀀스 분해</span></div>
+        <div class="flow-step"><span class="n">04</span><span class="t">행동 트리가 탐색 → 발견 → 접근 자동 전이</span></div>
+        <div class="flow-step"><span class="n">05</span><span class="t"><b>VLM + PCA</b> 가 잡는 부위·자세 결정</span></div>
+        <div class="flow-step"><span class="n">06</span><span class="t">m0609 + RG2 가 집기 → 쓰레기통 위 해제</span></div>
+      </div>
+    </div>
+    <aside class="notes">
+      음성·AI·비전·로봇 제어·행동 트리 5개 영역이 한 흐름으로 묶인다. 탐색이 별도 단계라는 점이 핵심.
+    </aside>
+  </section>
+
+  <!-- Slide 3 — Actions 데모 카탈로그 -->
+  <section class="slide" data-slide="3">
+    <header class="slide-head">
+      <p class="kicker">SECTION 01 · ACTION CATALOG</p>
+      <h2 class="h2">6가지 실제 동작 데모 — 한 화면에</h2>
+    </header>
+    <div class="slide-body actions-grid">
+      <div class="action-card">
+        <img class="gif" src="assets/media/demo-apple-find.gif" alt="사과 어디있어">
+        <div class="label"><span class="cmd">finding</span> — "사과 어디 있어?"</div>
+      </div>
+      <div class="action-card">
+        <img class="gif" src="assets/media/demo-apple-pick.gif" alt="사과 잡아">
+        <div class="label"><span class="cmd">pick</span> — "사과 잡아"</div>
+      </div>
+      <div class="action-card">
+        <img class="gif" src="assets/media/demo-apple-trash.gif" alt="사과 버려">
+        <div class="label"><span class="cmd">trash</span> — "사과 버려"</div>
+      </div>
+      <div class="action-card">
+        <img class="gif" src="assets/media/demo-shaker-pick.gif" alt="후추통 잡아">
+        <div class="label"><span class="cmd">pick</span> — "후추통 잡아"</div>
+      </div>
+      <div class="action-card">
+        <img class="gif" src="assets/media/demo-shaker-shake.gif" alt="후추통 흔들어">
+        <div class="label"><span class="cmd">shake</span> — "후추통 흔들어"</div>
+      </div>
+      <div class="action-card">
+        <img class="gif" src="assets/media/demo-shaker-pour.gif" alt="후추통 부어">
+        <div class="label"><span class="cmd">pour</span> — "후추통 접시에 부어"</div>
+      </div>
+    </div>
+    <aside class="notes">
+      action_manager 에 등록된 25 액션 중 발표 임팩트가 가장 큰 6개. 모두 voice → BT → action 흐름의 결과.
+    </aside>
+  </section>
+
+  <!-- Slide 4 — 문제 정의 -->
+  <section class="slide" data-slide="4">
+    <header class="slide-head">
+      <p class="kicker">SECTION 01 · PROBLEM DEFINITION</p>
+      <h2 class="h2">왜 음성 인터페이스가 필요한가</h2>
+    </header>
+    <div class="slide-body stack-2">
+      <div class="panel">
+        <h3>사회적 배경</h3>
+        <img class="panel-img" src="assets/media/social-background.png" alt="사회적 배경">
+        <p class="panel-text">고령화·1인 가구 증가로 가정 내 작업 보조 수요 확대. 협동로봇은 케이지 없이 사람 옆에서 동작 가능한 차세대 폼팩터.</p>
+      </div>
+      <div class="panel">
+        <h3>시장 동향</h3>
+        <img class="panel-img" src="assets/media/market-trend.png" alt="시장 동향">
+        <p class="panel-text">LLM·VLM 의 등장으로 자연어 → 의도 → 행동 변환의 기술 비용 급락. 비전문가도 쓰는 로봇이 가능한 시점.</p>
+      </div>
+    </div>
+    <aside class="notes">
+      왜 지금 이 프로젝트인가 — 시장 트렌드 + 본인 동기 1분 안에 전달.
+    </aside>
+  </section>
+
+  <!-- Slide 5 — 시스템 아키텍처 -->
+  <section class="slide" data-slide="5">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · SYSTEM ARCHITECTURE</p>
+      <h2 class="h2">두 PC, 한 명령 — 책임 분리 흐름도</h2>
+    </header>
+    <div class="slide-body">
+      <iframe class="diagram-frame" src="diagrams/architecture.html" title="시스템 아키텍처"></iframe>
+    </div>
+    <aside class="notes">
+      sub1 은 음성·LLM(비실시간), main 은 로봇 제어·비전(실시간). 굵은 화살표 /voice_command 가 단일 접점.
+    </aside>
+  </section>
+
+  <!-- Slide 6 — ROS 2 토폴로지 -->
+  <section class="slide" data-slide="6">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · ROS 2 TOPOLOGY</p>
+      <h2 class="h2">노드 7개 · 토픽·서비스·액션 연결도</h2>
+    </header>
+    <div class="slide-body">
+      <iframe class="diagram-frame" src="diagrams/ros2-topology.html" title="ROS 2 토폴로지"></iframe>
+    </div>
+    <aside class="notes">
+      통합 후 노드 7개로 정리. MultiThreadedExecutor + ReentrantCallbackGroup 으로 deadlock 방지.
+    </aside>
+  </section>
+
+  <!-- Slide 7 — 기술 스택 -->
+  <section class="slide" data-slide="7">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · TECH STACK</p>
+      <h2 class="h2">네 카테고리, 한 페이지 — 핵심 기술 스택</h2>
+    </header>
+    <div class="slide-body tech-cat">
+      <div class="tech-card">
+        <h4>Hardware</h4>
+        <div class="logos">
+          <div class="tech-logo">
+            <i data-lucide="bot"></i>
+            <span class="name">Doosan m0609</span>
+          </div>
+          <div class="tech-logo">
+            <i data-lucide="grab"></i>
+            <span class="name">OnRobot RG2</span>
+          </div>
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/intel/0071C5" alt="Intel">
+            <span class="name">RealSense D435</span>
+          </div>
+          <div class="tech-logo">
+            <i data-lucide="mic"></i>
+            <span class="name">USB Microphone</span>
+          </div>
+        </div>
+      </div>
+      <div class="tech-card">
+        <h4>AI / Vision</h4>
+        <div class="logos">
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/openai/10A37F" alt="OpenAI">
+            <span class="name">Whisper · GPT-4o</span>
+          </div>
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/pytorch/EE4C2C" alt="PyTorch">
+            <span class="name">PyTorch</span>
+          </div>
+          <div class="tech-logo">
+            <i data-lucide="eye"></i>
+            <span class="name">YOLO11s</span>
+          </div>
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/opencv/5C3EE8" alt="OpenCV">
+            <span class="name">OpenCV · Open3D</span>
+          </div>
+        </div>
+      </div>
+      <div class="tech-card">
+        <h4>Middleware</h4>
+        <div class="logos">
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/ros/22A7F0" alt="ROS 2">
+            <span class="name">ROS 2 Humble</span>
+          </div>
+          <div class="tech-logo">
+            <i data-lucide="network"></i>
+            <span class="name">CycloneDDS</span>
+          </div>
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/docker/2496ED" alt="Docker">
+            <span class="name">Docker Compose</span>
+          </div>
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/mysql/4479A1" alt="MySQL">
+            <span class="name">MySQL 8</span>
+          </div>
+        </div>
+      </div>
+      <div class="tech-card">
+        <h4>Dev / Tools</h4>
+        <div class="logos">
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/python/3776AB" alt="Python">
+            <span class="name">Python · C++</span>
+          </div>
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/fastapi/009688" alt="FastAPI">
+            <span class="name">FastAPI</span>
+          </div>
+          <div class="tech-logo">
+            <i data-lucide="git-branch"></i>
+            <span class="name">colcon · ament</span>
+          </div>
+          <div class="tech-logo">
+            <img src="https://cdn.simpleicons.org/github/8b949e" alt="GitHub">
+            <span class="name">GitHub</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      HW=하드웨어, AI/Vision=인식, Middleware=통신·DB, Dev=언어·툴. 정석 로고만 사용.
+    </aside>
+  </section>
+
+  <!-- Slide 8 — 음성 처리 -->
+  <section class="slide" data-slide="8">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · VOICE PIPELINE</p>
+      <h2 class="h2">발화에서 JSON 명령까지 — STT + LLM</h2>
+    </header>
+    <div class="slide-body code-split">
+      <div class="col">
+        <h4><i data-lucide="mic"></i> 음성 수신</h4>
+        <ul style="font-size: clamp(11px, 1.2cqw, 14px); color: var(--text-2); line-height: 1.6; margin: 0; padding-left: 1.2cqw;">
+          <li>호출어: openwakeword <code>wassup_homie.onnx</code> · threshold 0.3</li>
+          <li>녹음: 48 kHz mono Int16 · chunk 12 k · 침묵 1 s 종료</li>
+          <li>STT: <code>whisper-1</code> · language="ko"</li>
+        </ul>
+        <h4 style="margin-top: 1.5cqh;"><i data-lucide="brain"></i> 명령 분해</h4>
+        <ul style="font-size: clamp(11px, 1.2cqw, 14px); color: var(--text-2); line-height: 1.6; margin: 0; padding-left: 1.2cqw;">
+          <li>모델: <code>gpt-4o</code> · system prompt = 11 action 카탈로그</li>
+          <li>응답: <code>{"sequence":[...], "reply":"..."}</code> JSON 강제</li>
+          <li>발행: <code>/voice_command</code> · <code>/voice_reply</code></li>
+        </ul>
+      </div>
+      <div class="col">
+        <h4><i data-lucide="file-code-2"></i> STT 코드 스니펫</h4>
+        <img class="img-fit" src="assets/media/stt-code-snippet.png" alt="STT 호출 코드">
+      </div>
+    </div>
+    <aside class="notes">
+      Whisper + GPT-4o 두 단계 모두 OpenAI API. system prompt 가 카탈로그를 강제해 LLM 의 자유도를 좁힘.
+    </aside>
+  </section>
+
+  <!-- Slide 9 — BT (행동 트리) -->
+  <section class="slide" data-slide="9">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · BEHAVIOR TREE</p>
+      <h2 class="h2">한 명령이 여러 단계로 — BehaviorTree.CPP v3</h2>
+    </header>
+    <div class="slide-body bt-split">
+      <div class="code-block"><span class="c">&lt;!-- bt_cobot2.xml --&gt;</span>
+<span class="k">&lt;KeepRunningUntilFailure&gt;</span>
+  <span class="k">&lt;Sequence&gt;</span>
+    <span class="k">&lt;Action ID=</span><span class="s">"PopNextTask"</span> .../&gt;
+    <span class="k">&lt;Fallback name=</span><span class="s">"ActionPreparation"</span><span class="k">&gt;</span>
+      <span class="k">&lt;Sequence name=</span><span class="s">"TargetRequiredBranch"</span><span class="k">&gt;</span>
+        <span class="k">&lt;Condition ID=</span><span class="s">"IsTargetRequired"</span>/&gt;
+        <span class="k">&lt;Fallback name=</span><span class="s">"SearchLogic"</span><span class="k">&gt;</span>
+          <span class="k">&lt;Condition ID=</span><span class="s">"IsTargetLocated"</span>/&gt;
+          <span class="k">&lt;Action action_name=</span><span class="s">"detect_in_place"</span>/&gt;
+          <span class="k">&lt;Action action_name=</span><span class="s">"finding"</span>/&gt;
+        <span class="k">&lt;/Fallback&gt;</span>
+        <span class="k">&lt;Action action_name=</span><span class="s">"approach"</span>/&gt;
+      <span class="k">&lt;/Sequence&gt;</span>
+    <span class="k">&lt;/Fallback&gt;</span>
+    <span class="k">&lt;Action action_name=</span><span class="s">"{action}"</span>/&gt;
+  <span class="k">&lt;/Sequence&gt;</span>
+<span class="k">&lt;/KeepRunningUntilFailure&gt;</span>
+<span class="c">// PopNextTask 큐 빔 시 reset 1회 자동 emit → 홈 복귀</span></div>
+      <div class="bt-viewer">
+        <img src="assets/media/bt-groot-viewer.png" alt="Groot 2 BT viewer — SearchLogic Fallback 펼친 상태">
+        <span class="caption">Groot 2 · KeepRunningUntilFailure → Sequence → PopNextTask → ActionPreparation Fallback</span>
+      </div>
+    </div>
+    <aside class="notes">
+      KeepRunningUntilFailure 가 sequence 큐를 돌리고, SearchLogic Fallback 이 탐색 자동화. 10 Hz tick.
+    </aside>
+  </section>
+
+  <!-- Slide 10 — 동적 파지 (Grasp) -->
+  <section class="slide" data-slide="10">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · DYNAMIC GRASP</p>
+      <h2 class="h2">잡는 부위까지 결정하는 비전 파이프라인</h2>
+    </header>
+    <div class="slide-body grasp-split">
+      <div class="panel">
+        <div class="panel-label">Vision Workflow (7-step)</div>
+        <div class="panel-img-wrap">
+          <img class="panel-img" src="assets/media/vision-workflow.png" alt="비전 워크플로우">
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-label">YOLO Detection Result</div>
+        <div class="panel-img-wrap">
+          <img class="panel-img" src="assets/media/vision-yolo-result.png" alt="YOLO 결과">
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      YOLO11s 로 클래스 검출 → plate 만 VLM ROI → ROI 1.5배 확장 → PCA 분포 분석 → plate=radial / banana=cylindrical / 그 외=spherical 분기. 2-phase 흐름: 1차 스캔 → 근접 이동 → 2차 재탐지.
+    </aside>
+  </section>
+
+  <!-- Slide 11 — Hand-Eye Calibration -->
+  <section class="slide" data-slide="11">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · HAND-EYE CALIBRATION</p>
+      <h2 class="h2">카메라 좌표 → 베이스 좌표 — 5° 기울임의 비밀</h2>
+    </header>
+    <div class="slide-body code-split">
+      <div class="col">
+        <h4><i data-lucide="image"></i> 5° 기울임 깊이 보정</h4>
+        <img class="img-fit" src="assets/media/vision-depth-tilt.png" alt="depth 5° tilt">
+      </div>
+      <div class="col">
+        <h4><i data-lucide="axis-3d"></i> 4×4 변환 행렬</h4>
+        <div class="code-block"><span class="c"># 캘리브 데이터 (20포즈 수집)</span>
+<span class="k">T_gripper2camera</span> = <span class="s">np.load(</span>
+  <span class="s">"T_gripper2camera.npy"</span><span class="s">)</span>   <span class="c"># 4×4 mm</span>
+
+<span class="c"># cv2.calibrateHandEye 으로 회전+병진 추정</span>
+R_g2c, t_g2c = <span class="k">cv2.calibrateHandEye</span>(
+  R_base2gripper, t_base2gripper,
+  R_target2cam,  t_target2cam,
+  method=<span class="s">cv2.CALIB_HAND_EYE_TSAI</span>)
+
+<span class="c"># 적용: camera_pose → base_pose</span>
+base_pose = <span class="k">cam_pose_to_base_pose</span>(
+  pose, T_gripper2camera, base2gripper)</div>
+        <p style="font-size: clamp(10px, 1.1cqw, 13px); color: var(--text-2); margin: 0; line-height: 1.5;">
+          체커보드 5° 기울임 → 정반사 회피 + ROI 중앙값 깊이 추출. m0609 <code>vel_linear = 200 mm/s</code>.
+        </p>
+      </div>
+    </div>
+    <aside class="notes">
+      Hand-eye 캘리브의 핵심은 hardware 회피 + 알고리즘 보정 두 축. 20포즈 수집 → cv2.calibrateHandEye → 4×4 행렬.
+    </aside>
+  </section>
+
+  <!-- Slide 12 — 안전 시스템 -->
+  <section class="slide" data-slide="12">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · SAFETY SYSTEM</p>
+      <h2 class="h2">즉시 정지부터 복구까지 — 네 단계 흐름</h2>
+    </header>
+    <div class="slide-body safety-flow">
+      <div class="safety-step">
+        <div class="icon-wrap"><i data-lucide="octagon-x"></i></div>
+        <h4>음성 ESTOP</h4>
+        <p class="desc">"정지" · "멈춰" 키워드 감지 → <code>/admin_command ESTOP</code> 발행</p>
+        <p class="ref">wakeup_worker.py:490</p>
+      </div>
+      <div class="safety-step">
+        <div class="icon-wrap"><i data-lucide="square-stop"></i></div>
+        <h4>DSR 정지</h4>
+        <p class="desc"><code>/dsr01/motion/move_stop</code> · <code>/drl/drl_stop</code> · <code>set_safety_mode</code></p>
+        <p class="ref">state_manager.py</p>
+      </div>
+      <div class="safety-step">
+        <div class="icon-wrap"><i data-lucide="shield-check"></i></div>
+        <h4>상태 게이트</h4>
+        <p class="desc">PopNextTask 큐 소각 + executer 비재진입 lock 보장</p>
+        <p class="ref">PopNextTask.hpp:33</p>
+      </div>
+      <div class="safety-step">
+        <div class="icon-wrap"><i data-lucide="rotate-ccw"></i></div>
+        <h4>RECOVERY</h4>
+        <p class="desc">"해제"·"재개" → UNLOCK → ActionManager.reset_error</p>
+        <p class="ref">action_manager.py:171</p>
+      </div>
+    </div>
+    <aside class="notes">
+      안전은 우선순위 첫째. ESTOP 은 BT·executer 모두 즉시 정지. RECOVERY 는 노드 재시작 없이 복구.
+    </aside>
+  </section>
+
+  <!-- Slide 13 — DB / 로깅 -->
+  <section class="slide" data-slide="13">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · DATABASE &amp; LOGGING</p>
+      <h2 class="h2">DDS 격리 우회 — DB 가 도커 컨테이너의 창</h2>
+    </header>
+    <div class="slide-body db-split">
+      <div class="img-wrap">
+        <div class="panel-label">Docker 컨테이너 구조</div>
+        <img src="assets/media/db-docker-structure.png" alt="Docker 컨테이너 구조">
+      </div>
+      <div class="img-wrap">
+        <div class="panel-label">Manager UI 대시보드 (실시간)</div>
+        <img src="assets/media/ui-admin-dashboard.gif" alt="Manager 대시보드">
+      </div>
+    </div>
+    <aside class="notes">
+      robot 컨테이너는 DDS 그래프에 못 들어가므로 호스트가 5 토픽을 MySQL 에 적재 → 컨테이너 read-only. dedupe 5 초.
+    </aside>
+  </section>
+
+  <!-- Slide 14 — DDS / Cross-host -->
+  <section class="slide" data-slide="14">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · CROSS-HOST DDS</p>
+      <h2 class="h2">멀티캐스트 불안정 → CycloneDDS 유니캐스트로</h2>
+    </header>
+    <div class="slide-body code-split">
+      <div class="col">
+        <h4><i data-lucide="radio-tower"></i> 환경 변수 강제</h4>
+        <div class="code-block"><span class="c"># system.launch.py</span>
+<span class="k">from</span> launch.actions <span class="k">import</span> SetEnvironmentVariable
+
+ld.add_action(<span class="k">SetEnvironmentVariable</span>(
+  <span class="s">"RMW_IMPLEMENTATION"</span>,
+  <span class="s">"rmw_cyclonedds_cpp"</span>))
+ld.add_action(<span class="k">SetEnvironmentVariable</span>(
+  <span class="s">"ROS_DOMAIN_ID"</span>, <span class="s">"0"</span>))
+ld.add_action(<span class="k">SetEnvironmentVariable</span>(
+  <span class="s">"CYCLONEDDS_URI"</span>,
+  <span class="s">"file:///cyclone_unicast.xml"</span>))</div>
+        <p style="font-size: clamp(10px, 1.1cqw, 13px); color: var(--text-2); margin: 0; line-height: 1.55;">
+          런치 시점에 환경 변수 명시 → 셸 source 누락 시에도 일관 동작.
+        </p>
+      </div>
+      <div class="col">
+        <h4><i data-lucide="network"></i> Unicast peers XML</h4>
+        <div class="code-block"><span class="c">&lt;!-- cyclone_unicast.xml --&gt;</span>
+<span class="k">&lt;CycloneDDS&gt;</span>
+  <span class="k">&lt;Domain&gt;</span>
+    <span class="k">&lt;General&gt;</span>
+      <span class="k">&lt;AllowMulticast&gt;</span>false<span class="k">&lt;/AllowMulticast&gt;</span>
+    <span class="k">&lt;/General&gt;</span>
+    <span class="k">&lt;Discovery&gt;</span>
+      <span class="k">&lt;Peers&gt;</span>
+        <span class="k">&lt;Peer Address=</span><span class="s">"192.168.0.10"</span>/&gt;
+        <span class="k">&lt;Peer Address=</span><span class="s">"192.168.0.11"</span>/&gt;
+      <span class="k">&lt;/Peers&gt;</span>
+    <span class="k">&lt;/Discovery&gt;</span>
+  <span class="k">&lt;/Domain&gt;</span>
+<span class="k">&lt;/CycloneDDS&gt;</span></div>
+      </div>
+    </div>
+    <aside class="notes">
+      Wi-Fi 환경 멀티캐스트 드롭 회피. 유니캐스트 두 IP 명시로 안정화. 도메인 0 고정.
+    </aside>
+  </section>
+
+  <!-- Slide 15 — YOLO 학습 -->
+  <section class="slide" data-slide="15">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · YOLO TRAINING</p>
+      <h2 class="h2">v3 → v4 데이터 정제 — fitness 0.65 → 0.93</h2>
+    </header>
+    <div class="slide-body" style="display: grid; grid-template-columns: 5fr 7fr; column-gap: 2.5cqw; height: 100%;">
+      <img src="assets/media/vision-yolo-comparison.png" alt="YOLO v3 vs v4" style="width: 100%; height: 100%; object-fit: contain; border-radius: 10px; background: rgba(255,255,255,.02); border: 1px solid var(--border);">
+      <div style="display: flex; flex-direction: column; gap: 1.5cqh; min-height: 0;">
+        <div class="metric-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <div class="metric-card"><span class="label">mAP@50</span><span class="value">99.0%</span><span class="meta">0.9901</span></div>
+          <div class="metric-card"><span class="label">mAP@50-95</span><span class="value">92.7%</span><span class="meta">0.9272</span></div>
+          <div class="metric-card"><span class="label">F1</span><span class="value">96.8%</span><span class="meta">0.9682</span></div>
+          <div class="metric-card"><span class="label">Precision</span><span class="value">96.9%</span><span class="meta">0.9689</span></div>
+          <div class="metric-card"><span class="label">Recall</span><span class="value">96.7%</span><span class="meta">0.9674</span></div>
+          <div class="metric-card"><span class="label">Fitness</span><span class="value">0.93</span><span class="meta">+43.6% vs v3</span></div>
+        </div>
+        <ul style="font-size: clamp(11px, 1.2cqw, 14px); color: var(--text-2); line-height: 1.6; margin: 0; padding-left: 1.2cqw;">
+          <li>8-class → 7-class 정리 (중복 클래스 통합)</li>
+          <li>실측 데이터 200+ 장 추가 · 불균형 보정</li>
+          <li>FPS 181.6 (V100) · 모델: <code>yolo11s</code></li>
+        </ul>
+      </div>
+    </div>
+    <aside class="notes">
+      v3 의 약점은 데이터 균형. 정제 + 실측 추가로 fitness 0.65 → 0.93. 전 클래스 ≥ 97%.
+    </aside>
+  </section>
+
+  <!-- Slide 16 — 리팩토링 / 통합 -->
+  <section class="slide" data-slide="16">
+    <header class="slide-head">
+      <p class="kicker">SECTION 02 · REFACTORING</p>
+      <h2 class="h2">14 노드 → 7 노드 — 단일 책임으로 통합</h2>
+    </header>
+    <div class="slide-body refactor-split">
+      <div class="refactor-col before">
+        <h4>Before · 14 노드</h4>
+        <div class="list">
+          <span>voice_input_node</span>
+          <span>voice_stt_node</span>
+          <span>voice_llm_node</span>
+          <span>yolo_detect_node</span>
+          <span>depth_estimate_node</span>
+          <span>roi_calibrator_node</span>
+          <span>vlm_query_node</span>
+          <span>grasp_planner_node</span>
+          <span>...</span>
+        </div>
+      </div>
+      <div class="refactor-arrow"><i data-lucide="arrow-right"></i></div>
+      <div class="refactor-col after">
+        <h4>After · 7 노드</h4>
+        <div class="list">
+          <span>wakeup_worker</span>
+          <span>ui_bridge</span>
+          <span>bt_manager</span>
+          <span>executer</span>
+          <span>state_manager</span>
+          <span>grasp_perception_node</span>
+          <span>db_logger</span>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      voice 3 노드 → wakeup_worker 1개. object_detection 5 노드 → grasp_perception_node 1개. 책임 분명, 통신 단순.
+    </aside>
+  </section>
+
+  <!-- Slide 17 — 품질 패턴 -->
+  <section class="slide" data-slide="17">
+    <header class="slide-head">
+      <p class="kicker">SECTION 03 · QUALITY PATTERNS</p>
+      <h2 class="h2">실 운영에서 검증한 8 가지 패턴</h2>
+    </header>
+    <div class="slide-body quality-grid">
+      <div class="quality-card">
+        <div class="head"><i data-lucide="lock"></i><span class="t">비재진입 lock</span></div>
+        <div class="desc">_busy threading.Lock 으로 동시 grasp 요청 즉시 거부</div>
+        <div class="ref">grasp_node.py:118</div>
+      </div>
+      <div class="quality-card">
+        <div class="head"><i data-lucide="network"></i><span class="t">QoS TRANSIENT_LOCAL</span></div>
+        <div class="desc">/admin_result 늦은 구독자도 최신 상태 1개 수신</div>
+        <div class="ref">state_manager.py</div>
+      </div>
+      <div class="quality-card">
+        <div class="head"><i data-lucide="database"></i><span class="t">DB 트랜잭션</span></div>
+        <div class="desc">autocommit=False + 5초 dedupe 로 중복 로그 방지</div>
+        <div class="ref">db_logger.py:62</div>
+      </div>
+      <div class="quality-card">
+        <div class="head"><i data-lucide="check-circle-2"></i><span class="t">동적 ready 체크</span></div>
+        <div class="desc">service_is_ready() per call · 재시작 자연 복구</div>
+        <div class="ref">action_manager.py:114</div>
+      </div>
+      <div class="quality-card">
+        <div class="head"><i data-lucide="layers"></i><span class="t">MultiThreaded Executor</span></div>
+        <div class="desc">ReentrantCallbackGroup 으로 장시간 콜백 격리</div>
+        <div class="ref">grasp_node.py:406</div>
+      </div>
+      <div class="quality-card">
+        <div class="head"><i data-lucide="refresh-cw"></i><span class="t">백그라운드 spin</span></div>
+        <div class="desc">wakeup_worker 별도 스레드 spin → /ui_bridge/state 구독</div>
+        <div class="ref">wakeup_worker.py</div>
+      </div>
+      <div class="quality-card">
+        <div class="head"><i data-lucide="shield"></i><span class="t">바닥 z 클램프</span></div>
+        <div class="desc">approach_offset 보다 floor_z 우선 → 충돌 방지</div>
+        <div class="ref">motion.py:818</div>
+      </div>
+      <div class="quality-card">
+        <div class="head"><i data-lucide="home"></i><span class="t">자동 홈 복귀</span></div>
+        <div class="desc">PopNextTask 큐 빔 → reset 1회 emit → idle</div>
+        <div class="ref">PopNextTask.hpp:71</div>
+      </div>
+    </div>
+    <aside class="notes">
+      각 패턴은 막아낸 실제 사고 사례가 있다. 발표 시 한 패턴당 1 사례 인용.
+    </aside>
+  </section>
+
+  <!-- Slide 18 — 도전과제 -->
+  <section class="slide" data-slide="18">
+    <header class="slide-head">
+      <p class="kicker">SECTION 03 · CHALLENGES</p>
+      <h2 class="h2">네 가지 함정 · 네 가지 해결</h2>
+    </header>
+    <div class="slide-body challenge-grid">
+      <div class="challenge-card">
+        <span class="pill">Wi-Fi 다중 호스트</span>
+        <h4>DDS 멀티캐스트 패킷 유실</h4>
+        <p class="body">공유기 보안·QoS 정책으로 multicast 도달 실패 → 상태·로그 데이터 손실.</p>
+        <p class="fix">→ CycloneDDS unicast peers (cross-host-dds.md)</p>
+      </div>
+      <div class="challenge-card">
+        <span class="pill">depth camera</span>
+        <h4>스캔 거리에서 깊이 오차 ±20 mm</h4>
+        <p class="body">단일 중심점 depth 가 정반사·노이즈에 취약 → 잘못된 base_pose.</p>
+        <p class="fix">→ 2-phase grasp + ROI 중앙값 (grasp_node.py:880)</p>
+      </div>
+      <div class="challenge-card">
+        <span class="pill">DSR action</span>
+        <h4>장시간 grasp 콜백 단일 스레드 점유</h4>
+        <p class="body">VLM 5 초 + motion 10 초 동안 다른 콜백 starved → frame 갱신 멈춤.</p>
+        <p class="fix">→ MultiThreadedExecutor + Reentrant (grasp_node.py:406)</p>
+      </div>
+      <div class="challenge-card">
+        <span class="pill">VLM latency</span>
+        <h4>OpenAI API 가끔 30 초+ 지연</h4>
+        <p class="body">action_manager 동기 호출 시 BT tick 멈춤 + 사용자 응답 끊김.</p>
+        <p class="fix">→ call_async + 타임아웃 폴링 (action_manager.py:124)</p>
+      </div>
+    </div>
+    <aside class="notes">
+      각 함정은 발표 시 디버깅 로그 1줄 인용. "이 한 줄이 실마리였다" 식 스토리텔링.
+    </aside>
+  </section>
+
+  <!-- Slide 19 — 회고 -->
+  <section class="slide" data-slide="19">
+    <header class="slide-head">
+      <p class="kicker">SECTION 03 · LESSONS LEARNED</p>
+      <h2 class="h2">2주 프로젝트가 남긴 다섯 가지</h2>
+    </header>
+    <div class="slide-body lessons">
+      <div class="lesson-row">
+        <span class="num">01</span>
+        <div class="body">
+          <b>책임 분리는 통신 단순화로 보답한다</b>
+          <p>14 노드 → 7 노드 통합 후 토픽 수가 ⅓ 로 줄고 디버깅 시간이 절반으로.</p>
+        </div>
+      </div>
+      <div class="lesson-row">
+        <span class="num">02</span>
+        <div class="body">
+          <b>안전은 코드의 첫째 칸에 있어야 한다</b>
+          <p>음성 ESTOP·자동 홈 복귀를 후순위로 미루지 않고 1차 구현에 포함시켰기에 데모 사고 0.</p>
+        </div>
+      </div>
+      <div class="lesson-row">
+        <span class="num">03</span>
+        <div class="body">
+          <b>실측 데이터가 곧 모델 성능이다</b>
+          <p>200+ 장 실측 추가만으로 YOLO fitness 0.65 → 0.93. 전문 모델 대신 데이터에 시간 투자.</p>
+        </div>
+      </div>
+      <div class="lesson-row">
+        <span class="num">04</span>
+        <div class="body">
+          <b>오버 엔지니어링보다 단순 패턴이 강하다</b>
+          <p>service_is_ready() per call · autocommit=False · dedupe 5 초 — 모두 5줄 미만 패턴.</p>
+        </div>
+      </div>
+      <div class="lesson-row">
+        <span class="num">05</span>
+        <div class="body">
+          <b>외부 API 는 항상 타임아웃</b>
+          <p>OpenAI 30 초 지연이 운영 중 한 번이라도 나면 시스템 전체가 죽는다. 동기 호출 금지.</p>
+        </div>
+      </div>
+    </div>
+    <aside class="notes">
+      회고는 추상적 표현 대신 사례 + 수치로 마무리. 마지막 슬라이드 Q&A 로 자연 전이.
+    </aside>
+  </section>
+
+  <!-- Slide 20 — Q&A / Thank you -->
+  <section class="slide" data-slide="20">
+    <header class="slide-head">
+      <p class="kicker">SECTION 04 · Q &amp; A</p>
+      <h2 class="h2">감사합니다 — 질문 환영합니다</h2>
+    </header>
+    <div class="slide-body thanks">
+      <p class="big">HOMIE</p>
+      <p class="sub">Helping Out! Making It Easy! — cobot2 음성 협동로봇 시스템</p>
+      <div class="repos">
+        <a class="repo" href="https://github.com/dev-kibeom/cobot2" target="_blank">
+          <img src="https://cdn.simpleicons.org/github/c0caf5" alt="GitHub">
+          <span>dev-kibeom/cobot2 (main)</span>
+        </a>
+        <a class="repo" href="https://github.com/ThatsHoon/rokey_web" target="_blank">
+          <img src="https://cdn.simpleicons.org/github/c0caf5" alt="GitHub">
+          <span>ThatsHoon/rokey_web (client UI)</span>
+        </a>
+        <a class="repo" href="https://youtu.be/WauzgaCqTks" target="_blank">
+          <i data-lucide="play-circle"></i>
+          <span>Demo Video (YouTube)</span>
+        </a>
+      </div>
+    </div>
+    <aside class="notes">
+      Q&A 30 초 이내 답변 룰. 모르면 "프로젝트 종료 후 답변 드리겠습니다" 솔직하게.
+    </aside>
+  </section>
+
+</div>
+
+<!-- Footer slide counter -->
+<div class="deck-footer">
+  <span>cobot2 · HOMIE</span>
+  <span class="slide-number" data-current="1" data-total="20"></span>
+</div>
+
+<script src="assets/runtime.js"></script>
+<script src="assets/animations/fx-runtime.js"></script>
+<script>
+  // Lucide 아이콘 렌더링
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+  // 슬라이드 전환 시 lucide 재호출 (동적 컨텐츠 안전망)
+  window.addEventListener('keydown', () => {
+    requestAnimationFrame(() => {
+      if (window.lucide) lucide.createIcons();
+    });
+  });
+</script>
+</body>
+</html>
